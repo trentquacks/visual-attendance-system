@@ -1,0 +1,6 @@
+Images/*
+Images
+/Images
+venv
+encodings.pkl
+__pycache__
