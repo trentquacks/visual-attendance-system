@@ -1,12 +1,12 @@
 # Facial Recognition (WIP)
 
-## What
+# What
 A fork of this repo
 https://github.com/charvik42/Attendance-v2/
 
 ...
 
-## TODO
+# TODO
 - [x] Seperate Enrollment with the actual Attendance Checker | 11/26/25
 - [] Create a ui for console to make the program user friendly
     - [] Attendance
