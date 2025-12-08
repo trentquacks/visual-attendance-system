@@ -1,7 +1,7 @@
 # Facial Recognition (WIP)
 
 # What
-A fork of this repo
+A copy of this repo
 https://github.com/charvik42/Attendance-v2/
 
 ...

@@ -11,9 +11,10 @@ def open():
         serial_instance.baudrate = 9600
         serial_instance.port = '/dev/ttyUSB0'
         serial_instance.open()
-        sleep(2)
+        sleep(3)
         serial_instance.write("OPEN".encode('utf-8'))
         sleep(3)
     except Exception as e: 
         print("Arduino Error:", e)
 
+open()

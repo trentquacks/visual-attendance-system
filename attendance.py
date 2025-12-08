@@ -89,7 +89,7 @@ HEIGHT = 720
 SCALE = 4
 dimension = (WIDTH * SCALE, HEIGHT * SCALE)
 registered_this_session = set()
-webcam = cv2.VideoCapture(0)
+webcam = cv2.VideoCapture(2)
 webcam.set(cv2.CAP_PROP_FRAME_WIDTH, WIDTH)
 webcam.set(cv2.CAP_PROP_FRAME_HEIGHT, HEIGHT)
 
@@ -120,7 +120,7 @@ connection = pymysql.connect(
 )
 cursor = connection.cursor()
 
-threshold = 300.00 # higher means more clearer
+threshold = 150.00 # higher means more clearer
 not_blur = 0
 
 name = ""
@@ -156,6 +156,7 @@ while True:
         cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
     
     for encodeFace, faceLoc in zip(encodesCurFrame, facesCurFrame):
+        print(not_blur, variance)
         if not facesCurFrame:
             not_blur = 0
             continue
@@ -178,9 +179,8 @@ while True:
         cv2.rectangle(img, (x0, y0), (x1, y1), (0, 165, 255), 2)
 
         not_blur += 1
-        print(not_blur, variance)
 
-        matches = face_recognition.compare_faces(encodeListKnown, encodeFace, tolerance=0.45)
+        matches = face_recognition.compare_faces(encodeListKnown, encodeFace, tolerance=.4)
         faceDis = face_recognition.face_distance(encodeListKnown, encodeFace)
         matchIndex = np.argmin(faceDis)
 
@@ -194,6 +194,10 @@ while True:
         if matches[matchIndex] and not_blur >= 30:
             not_blur = 0
             gate_opened = True
+            print("MATCHES: ", matches)
+            print("FD:", faceDis)
+            print("MI:", matchIndex)
+            print("CM:", classNames)
 
             cursor.execute(
                 "SELECT name FROM student WHERE id = %s",
@@ -207,7 +211,7 @@ while True:
                         cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
             cv2.rectangle(img, (x0, y0), (x1, y1), (0, 255, 0), 2)
 
-            gate.open()
+            # gate.open()
             markAttendance(name)
 
     resized_frame = cv2.resize(img, dimension, interpolation=cv2.INTER_AREA)
