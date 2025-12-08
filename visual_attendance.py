@@ -117,7 +117,4 @@ class VisualAttendance:
         center_img = cv2.cvtColor(center_img, cv2.COLOR_BGR2RGB) 
         return center_img
 
-va = VisualAttendance()
-connection = va.start_sql('root', 'root', 'attendance_db')
-va.mark_attendance(1, connection)
 
