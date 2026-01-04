@@ -89,7 +89,7 @@ HEIGHT = 720
 SCALE = 4
 dimension = (WIDTH * SCALE, HEIGHT * SCALE)
 registered_this_session = set()
-webcam = cv2.VideoCapture(2)
+webcam = cv2.VideoCapture(0)
 webcam.set(cv2.CAP_PROP_FRAME_WIDTH, WIDTH)
 webcam.set(cv2.CAP_PROP_FRAME_HEIGHT, HEIGHT)
 

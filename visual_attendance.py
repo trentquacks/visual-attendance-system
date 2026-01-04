@@ -16,11 +16,13 @@ class VisualAttendance:
     images = []
     class_names = []
     encode_list_known = []
+    name = ""
+    student_id = ""
 
 
     def __init__(self):
+        self.load_encodings()
 
-        pass
 
     def get_encodings(self):
         encode_list = []
@@ -46,25 +48,25 @@ class VisualAttendance:
         if os.path.exists(self.encoding_file):
             print("Loading encodings from file...")
             with open(self.encoding_file, 'rb') as f:
-                encode_list_known, self.class_names = pickle.load(f)
+                self.encode_list_known, self.class_names = pickle.load(f)
             print("Encodings loaded successfully.")
         else:
             print("Encodings not found. Generating...")
-            encode_list_known = get_encodings()
+            self.encode_list_known = get_encodings()
             with open(self.encoding_file, 'wb') as f:
                 pickle.dump((encode_list_known, self.class_names), f)
             print("Encodings saved to file.")
 
 
     def start_sql(self, user, password, database):
-        self.connection = pymysql.connect(
-        host='localhost',  
-        user=user,  
-        password=password,   
-        database=database
+        connection = pymysql.connect(
+            host='localhost',  
+            user=user,  
+            password=password,   
+            database=database
         )
         # cursor = self.connection.cursor()
-        return self.connection
+        return connection
 
     
     def mark_attendance(self, student_id, connection):
@@ -86,9 +88,10 @@ class VisualAttendance:
                 )
                 name = cursor.fetchone()
 
-                if not result and name is not None:
+                if result and name is not None:
                     print(f"Test {name}")
-                    name = name[0]
+                    self.student_id = student_id
+                    self.name = name[0]
                     cursor.execute(
                         "INSERT INTO attendance (student_id, time_attended, date_attended) VALUES (%s, %s, %s)",
                         (student_id, time_str, date_str)
@@ -100,21 +103,51 @@ class VisualAttendance:
             print(f"Database error: {err}")
 
 
-    def open_webcam(self, width=1280, height=720, webcam=0):
+    def open_webcam(self, name="Webcam", width=1280, height=720, webcam=0):
         stream = cv2.VideoCapture(webcam)
 
         if not stream.isOpened():
             print(f'Webcam {webcam} is not available')
             return exit()
 
+
+        cv2.namedWindow(name, cv2.WND_PROP_FULLSCREEN)
+        cv2.setWindowProperty(name,cv2.WND_PROP_FULLSCREEN,cv2.WINDOW_FULLSCREEN)
+
         stream.set(cv2.CAP_PROP_FRAME_WIDTH, width)
         stream.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
+
+        # camera will default to nearest available res even if specified
+        width = int(stream.get(cv2.CAP_PROP_FRAME_WIDTH))
+        height = int(stream.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        scale = 3
+        offset = 150
+
+        # mid points
+        self.xm = int(width/2)
+        self.ym = int(height/2)
+
+        # 2 points to define the center region
+        self.x0 = self.xm - offset
+        self.y0 = self.ym + offset
+        self.x1 = self.xm + offset
+        self.y1 = self.ym - offset
+        self.dimension = (width * scale, height * scale)
+        print("DIMESNION", self.dimension)
         return stream
 
+    def show_webcam(self, img, name="Webcam"):
+        resized_img = cv2.resize(img, self.dimension, interpolation=cv2.INTER_AREA)
+        cv2.imshow(name, resized_img)
 
-    def crop_center(self):
-        center_img = img[y1:y0, x0:x1]
+
+    def crop_center(self, img):
+        center_img = img[self.y1:self.y0, self.x0:self.x1]
         center_img = cv2.cvtColor(center_img, cv2.COLOR_BGR2RGB) 
         return center_img
 
+    
+    def detect_blur(self, img, threshold=150):
+        variance = cv2.Laplacian(img, cv2.CV_64F).var()
+        return variance < threshold
 
