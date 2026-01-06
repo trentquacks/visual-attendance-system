@@ -77,19 +77,12 @@ class VisualAttendance:
         try:
             with connection.cursor() as cursor:
                 cursor.execute(
-                    "SELECT * FROM attendance WHERE student_id = %s AND date_attended = %s",
-                    (student_id, date_str)
-                )
-                result = cursor.fetchone()
-
-                cursor.execute(
                     "SELECT name FROM student WHERE id = %s",
                     (student_id)
                 )
                 name = cursor.fetchone()
 
-                if result and name is not None:
-                    print(f"Test {name}")
+                if name is not None:
                     self.student_id = student_id
                     self.name = name[0]
                     cursor.execute(
