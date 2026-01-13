@@ -3,6 +3,7 @@ import os
 import cv2
 import numpy as np
 import gate
+import pickle
 from visual_attendance import VisualAttendance
 
 va = VisualAttendance()
@@ -30,16 +31,16 @@ while True:
     cv2.putText(img, ("Student Number: " + va.student_id), (50, 620),
         cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
 
-    facesCurFrame = face_recognition.face_locations(center_img)
+    face_on_current_frame = face_recognition.face_locations(center_img)
 
-    if not facesCurFrame:
+    if not face_on_current_frame:
         face_is_oriented = 0
 
-    elif len(facesCurFrame) > 1:
+    elif len(face_on_current_frame) > 1:
         face_is_oriented = 0
         cv2.rectangle(img, (va.x0, va.y0), (va.x1, va.y1), (0, 0, 255), 2)
         cv2.putText(img, "Multiple face detected..", (50, 50),
-                    cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+            cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
 
     elif va.detect_blur(center_img, threshold=150):
         face_is_oriented = 0
@@ -55,26 +56,24 @@ while True:
 
         if face_is_oriented >= 30:
             face_is_oriented = 0
-            encodesCurFrame = face_recognition.face_encodings(center_img, facesCurFrame)
-            matches = face_recognition.compare_faces(va.encode_list_known, encodesCurFrame[0], tolerance=.4)
+            face_encoding = face_recognition.face_encodings(center_img, face_on_current_frame)
+            matches = face_recognition.compare_faces(va.encode_list_known, face_encoding[0], tolerance=.4)
 
-            if not matches:
-                break
+            if matches:
+                face_distance = face_recognition.face_distance(va.encode_list_known, face_encoding[0])
+                matchIndex = np.argmin(face_distance)
 
-            faceDis = face_recognition.face_distance(va.encode_list_known, encodesCurFrame[0])
-            matchIndex = np.argmin(faceDis)
+                if True not in matches:
+                    cv2.rectangle(img, (va.x0, va.y0), (va.x1, va.y1), (0, 0, 255), 2)
+                    print("Unknown Face Detected")
 
-            if True not in matches:
-                cv2.rectangle(img, (va.x0, va.y0), (va.x1, va.y1), (0, 0, 255), 2)
-                print("Unknown Face Detected")
-
-            if matches[matchIndex]:
-                gate_opened = True
-                cv2.putText(img, "Access granted!", (va.x0 + 6, va.y1 - 6),
-                            cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
-                cv2.rectangle(img, (va.x0, va.y0), (va.x1, va.y1), (0, 255, 0), 2)
-                gate.open()
-                va.mark_attendance(str(va.class_names[matchIndex]), connection)
+                if matches[matchIndex]:
+                    gate_opened = True
+                    cv2.putText(img, "Access granted!", (va.x0 + 6, va.y1 - 6),
+                                cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+                    cv2.rectangle(img, (va.x0, va.y0), (va.x1, va.y1), (0, 255, 0), 2)
+                    gate.open()
+                    va.mark_attendance(str(va.class_names[matchIndex]), connection)
 
     va.show_webcam(img)
 

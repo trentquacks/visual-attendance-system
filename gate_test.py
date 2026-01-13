@@ -5,7 +5,7 @@ https://www.youtube.com/watch?v=UeybhVFqoeg
 import serial.tools.list_ports
 from time import sleep
 
-def open():
+def open_gate():
     try:
         serial_instance = serial.Serial()
         serial_instance.baudrate = 9600
@@ -17,4 +17,4 @@ def open():
     except Exception as e: 
         print("Arduino Error:", e)
 
-open()
+open_gate()

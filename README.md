@@ -8,9 +8,9 @@ https://github.com/charvik42/Attendance-v2/
 
 # TODO
 - [x] Seperate Enrollment with the actual Attendance Checker | 11/26/25
-- [] Create a ui for console to make the program user friendly
-    - [] Attendance
-    - [] Enrollment
+- [x] Create a ui for console to make the program user friendly
+    - [x] Attendance
+    - [x] Enrollment
     - [] SQL Log Viewer (Attendance, filters, etc..)
 - [x] Face detection features
     - [x] Only Allow face detection when face is at center | 11/30/25
@@ -25,6 +25,6 @@ https://github.com/charvik42/Attendance-v2/
 - [x] Create database of enrolled students | 11/27/25
     - [] Have an ability to delete student infos (admin)
 - [x] Implementation of Arduino | 11/29/30
-- [] Optimization
-    - [] Optimize performance of webcam by resizing 
-    - [] Rewrite codes as objects
+- [x] Optimization
+    - [x] Optimize performance of webcam by resizing 
+    - [x] REFACTOR
